@@ -7,15 +7,37 @@
 //
 
 import UIKit
+import GoogleMaps // 구글맵
+import GooglePlaces // 구글장소
+import UserNotifications
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate{
 
     var window: UIWindow?
-
+    
+    var googleAPIKey = "AIzaSyAONBXi5sUGG_NCAiiQkVQro52dEvmmkGQ"
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        GMSServices.provideAPIKey(googleAPIKey)
+        GMSPlacesClient.provideAPIKey(googleAPIKey)
+        
+        let center = UNUserNotificationCenter.current()
+        
+        center.requestAuthorization(options: [.alert, .sound]) { (granted, error) in
+            // Enable or disable features based on authorization.
+        }
+        
+       center.delegate = self
+        
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert,.sound]) {(accepted, error) in
+            if !accepted {
+                print("Notification access denied")
+            }
+        }
+        
+        Thread.sleep(forTimeInterval: 1.0) // 로딩하는 시간을 연장시킨다
         return true
     }
 
@@ -39,6 +61,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        // EZAlertController.alert("you have new meeting ")
+        
+        completionHandler( [.alert, .badge, .sound])
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        completionHandler()
     }
 
 
